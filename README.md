@@ -1,108 +1,137 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>EcoHabit Tracker</title>
+  <meta charset="UTF-8">
+  <title>EcoHabit - by Punith Kumar</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #e6f5ec;
-      color: #333;
-      padding: 20px;
-      max-width: 600px;
-      margin: auto;
-    }
-    h1 {
+      font-family: 'Segoe UI', sans-serif;
+      background: #e8f5e9;
       color: #2e7d32;
       text-align: center;
+      padding: 20px;
+      overflow-x: hidden;
     }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      animation: fadeIn 1s ease-out;
+    }
+
+    .subtitle {
+      font-size: 1em;
+      color: #4caf50;
+      margin-bottom: 20px;
+      animation: slideIn 1s ease-in-out;
+    }
+
     .habit {
-      display: flex;
-      align-items: center;
-      margin: 10px 0;
-      background: #fff;
-      padding: 10px;
+      font-size: 18px;
+      margin: 12px 0;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards;
+    }
+
+    .habit:nth-child(3) { animation-delay: 0.2s; }
+    .habit:nth-child(4) { animation-delay: 0.4s; }
+    .habit:nth-child(5) { animation-delay: 0.6s; }
+    .habit:nth-child(6) { animation-delay: 0.8s; }
+    .habit:nth-child(7) { animation-delay: 1s; }
+
+    input[type="checkbox"] {
+      transform: scale(1.3);
+      margin-right: 10px;
+    }
+
+    .tip {
+      background: #c8e6c9;
+      padding: 12px;
+      margin: 25px auto;
       border-radius: 10px;
+      max-width: 400px;
+      font-style: italic;
+      animation: fadeIn 1s ease-in;
     }
-    .habit input {
-      margin-right: 15px;
-      transform: scale(1.5);
-    }
-    #streak {
+
+    .streak {
       font-weight: bold;
-      text-align: center;
-      margin: 20px 0;
-    }
-    #eco-tip {
-      background: #d0f0c0;
-      padding: 10px;
-      border-radius: 10px;
+      font-size: 1.2em;
       margin-top: 20px;
+      animation: fadeIn 1.5s ease;
     }
-    button {
-      background-color: #4caf50;
-      color: white;
-      padding: 10px;
-      width: 100%;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      margin-top: 20px;
+
+    .footer {
+      font-size: 13px;
+      margin-top: 40px;
+      color: #1b5e20;
+      animation: slideIn 2s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0 }
+      to { opacity: 1 }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes fadeUp {
+      0% { transform: translateY(20px); opacity: 0 }
+      100% { transform: translateY(0); opacity: 1 }
     }
   </style>
 </head>
 <body>
-  <h1>🌱 EcoHabit Tracker</h1>
-  <div id="streak">Streak: 0 days 🔥</div>
+
+  <h1>EcoHabit 🌱</h1>
+  <div class="subtitle">Make everyday a green step</div>
 
   <div class="habit"><input type="checkbox" class="habit-check"> Turn off unused lights</div>
-  <div class="habit"><input type="checkbox" class="habit-check"> Use reusable bag</div>
-  <div class="habit"><input type="checkbox" class="habit-check"> Avoid plastic bottles</div>
-  <div class="habit"><input type="checkbox" class="habit-check"> Walk or bike instead of drive</div>
-  <div class="habit"><input type="checkbox" class="habit-check"> No meat today</div>
+  <div class="habit"><input type="checkbox" class="habit-check"> Avoid plastic bags</div>
+  <div class="habit"><input type="checkbox" class="habit-check"> Use reusable water bottles</div>
+  <div class="habit"><input type="checkbox" class="habit-check"> Walk or cycle instead of drive</div>
+  <div class="habit"><input type="checkbox" class="habit-check"> Don’t waste water</div>
 
-  <button onclick="saveProgress()">✅ Save Today's Progress</button>
+  <div class="tip" id="eco-tip">Loading eco tip...</div>
 
-  <div id="eco-tip">Tip: Small changes = Big impact! 💚</div>
+  <div class="streak">Current Streak: <span id="streak">0</span> days</div>
+
+  <div class="footer">Developed with 🌍 by <strong>Punith Kumar</strong></div>
 
   <script>
-    let streak = parseInt(localStorage.getItem('streak') || '0');
-    let lastDate = localStorage.getItem('lastDate');
+    const tips = [
+      "Bring your own cloth bag when shopping.",
+      "Skip plastic straws — use steel or bamboo.",
+      "Switch to LED bulbs to save energy.",
+      "Plant one tree every month.",
+      "Turn off taps while brushing your teeth.",
+      "Repurpose jars and containers.",
+      "Walk for short distances instead of driving."
+    ];
 
-    const today = new Date().toLocaleDateString();
+    const tipElement = document.getElementById("eco-tip");
+    tipElement.innerText = tips[Math.floor(Math.random() * tips.length)];
 
-    if (lastDate !== today) {
-      document.querySelectorAll('.habit-check').forEach(c => c.checked = false);
-    } else {
-      document.querySelectorAll('.habit-check').forEach((c, i) => {
-        const saved = localStorage.getItem('habit_' + i);
-        if (saved === 'true') c.checked = true;
+    const checks = document.querySelectorAll(".habit-check");
+    const streakElement = document.getElementById("streak");
+    let streak = localStorage.getItem("eco-streak") || 0;
+    streakElement.textContent = streak;
+
+    checks.forEach(check => {
+      check.addEventListener("change", () => {
+        const allChecked = Array.from(checks).every(c => c.checked);
+        if (allChecked) {
+          streak++;
+          localStorage.setItem("eco-streak", streak);
+          streakElement.textContent = streak;
+          alert("✅ Well done! Keep it up!");
+        }
       });
-    }
-
-    document.getElementById('streak').textContent = `Streak: ${streak} days 🔥`;
-
-    function saveProgress() {
-      const checks = document.querySelectorAll('.habit-check');
-      let allDone = true;
-
-      checks.forEach((c, i) => {
-        localStorage.setItem('habit_' + i, c.checked);
-        if (!c.checked) allDone = false;
-      });
-
-      if (lastDate !== today && allDone) {
-        streak++;
-        localStorage.setItem('streak', streak);
-        localStorage.setItem('lastDate', today);
-        alert('Great job! 🌎 You completed all tasks today!');
-      } else if (!allDone) {
-        alert('Try to complete all eco tasks before saving 🌿');
-      } else {
-        alert('Already saved today ✅');
-      }
-
-      document.getElementById('streak').textContent = `Streak: ${streak} days 🔥`;
-    }
+    });
   </script>
+
 </body>
 </html>
